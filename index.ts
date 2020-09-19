@@ -4,12 +4,16 @@ import * as fs from 'fs'
 import * as path from 'path'
 import {ApiModule} from './module'
 import {ServerConfig} from './config/config'
+import {ILogger, Logger, LogLevel} from './utils/logger'
+import {IRedis, Redis} from './utils/redis'
 
 export interface Server {
   config: ServerConfig
   addHeaders(): void
   addStaticRoutes(): void
+  connectToRedis() : void
   loadModules(): void
+  logger: ILogger
   registerRoute(path: string, fn: (req, res, next?) => void, method?: string): void
   start(port: number|string): void
 }
@@ -17,9 +21,18 @@ export interface Server {
 class WebServer implements Server {
   private server: express.Application
   public config: ServerConfig
+  public logger: ILogger
+  public redis: IRedis
+
   constructor() {
+    const args = require('yargs')
+      .default({
+        loglevel: process.env.LOGLEVEL || LogLevel[LogLevel.INFO],
+      })
+      .argv
     this.server = express()
     this.config = require('./config/config').config
+    this.logger = new Logger(LogLevel[args.loglevel] as any)
   }
 
   public addHeaders() {
@@ -38,10 +51,14 @@ class WebServer implements Server {
     this.server.use(express.static('dist'))
   }
 
+  public connectToRedis() {
+    this.redis = new Redis(this, this.config.redisHost, this.config.redisPort)
+  }
+
   public loadModules() {
     const files = fs.readdirSync(path.join(__dirname, 'api'))
     files.filter(file => file.endsWith('.ts')).forEach(file => {
-      console.log(`Registering ${file}`)
+      this.logger.info(`Registering ${file}`)
       const module = require(path.join(__dirname, 'api', file)).default
       const apiModule: ApiModule = new module(this)
       apiModule.addRoutes()
@@ -53,7 +70,7 @@ class WebServer implements Server {
   }
 
   public start(port: number|string) {
-    console.log('Web server listening on port', port)
+    this.logger.info(`Web server listening on port ${port}`)
     this.server.listen(port)
   }
 }
@@ -62,4 +79,5 @@ const server = new WebServer()
 server.addHeaders()
 server.loadModules()
 server.addStaticRoutes()
+server.connectToRedis()
 server.start(process.env.WEB_PORT || 8080)
