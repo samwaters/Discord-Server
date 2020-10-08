@@ -12,8 +12,8 @@ export interface ServerConfig {
 }
 
 export const config:ServerConfig = {
-  clientId: 'YOUR_CLIENT_ID_HERE',
-  clientSecret: 'YOUR_CLIENT_SECRET_HERE',
+  clientId: '722393293182337124',
+  clientSecret: '2a4QuolUqPqF1lFMaBk4p0fzhJgC5FSB',
   discordApiURL: 'https://discord.com/api/v6/',
   discordOAuthURL: 'https://discord.com/api/oauth2/token',
   oauthGrantType: 'authorization_code',

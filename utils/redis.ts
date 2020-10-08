@@ -8,7 +8,7 @@ export interface IRedis {
   getMultiple(keys: string[]): Promise<string[]>
   deleteKey(key: string): void
   keys(key: string): Promise<string[]>
-  set(key: string, data: string): void
+  set(key: string, data: string, expiry?: number): void
 }
 
 export class Redis implements IRedis {
@@ -51,7 +51,10 @@ export class Redis implements IRedis {
     return data
   }
 
-  public set(key: string, data: string) {
+  public set(key: string, data: string, expiry: number = 0) {
     this.client.set(key, data)
+    if(expiry > 0) {
+      this.client.expire(key, expiry)
+    }
   }
 }

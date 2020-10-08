@@ -14,6 +14,7 @@ export interface Server {
   connectToRedis() : void
   loadModules(): void
   logger: ILogger
+  redis: IRedis
   registerRoute(path: string, fn: (req, res, next?) => void, method?: string): void
   start(port: number|string): void
 }
@@ -39,7 +40,7 @@ class WebServer implements Server {
     this.server.use(bodyParser.json())
     this.server.use((req, res, next) => {
       res.header({
-        'Access-Control-Allow-Headers': 'authorization, content-type',
+        'Access-Control-Allow-Headers': 'authorization, content-type, x-token, x-user',
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
       })

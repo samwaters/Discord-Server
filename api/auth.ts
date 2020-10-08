@@ -42,7 +42,11 @@ export default class AuthApi implements ApiModule {
   }
 
   private authRedirect(req, res) {
-    const url=`https://discord.com/oauth2/authorize?client_id=${this.server.config.clientId}&redirect_uri=${encodeURIComponent(this.server.config.redirectUri)}&response_type=${this.server.config.responseType}&scope=${this.server.config.scopes.join('%20')}&state=foobar`
+    if(!req.query || !req.query.state) {
+      res.status(400).send({error: true, message: 'No state provided'}).end()
+      return
+    }
+    const url=`https://discord.com/oauth2/authorize?client_id=${this.server.config.clientId}&redirect_uri=${encodeURIComponent(this.server.config.redirectUri)}&response_type=${this.server.config.responseType}&scope=${this.server.config.scopes.join('%20')}&state=${req.query.state}`
     res.header('Content-Type', 'text/html').send(`<!doctype html>
 <html>
   <head>
@@ -64,7 +68,6 @@ export default class AuthApi implements ApiModule {
 
   private async getToken(req, res) {
     if(!req.body.token) {
-      console.log(req.body)
       res.status(400).send({error: true, message: 'Missing token'}).end()
       return
     }
@@ -84,10 +87,7 @@ export default class AuthApi implements ApiModule {
         ...response,
         createdAt: new Date().getTime()
       }).end()
-    } catch(e) {
-      console.log(e)
-      console.log('TOKEN', req.body.token)
-      console.log('-----\n\n\n\n-----')
+    } catch {
       res.status(403).send({error: true, message: 'Could not get token'}).end()
     }
   }
