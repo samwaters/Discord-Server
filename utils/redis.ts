@@ -18,7 +18,7 @@ export class Redis implements IRedis {
   private readonly multiple: (keys: string[]) => Promise<string[]>
   private server: Server
 
-  constructor(server: Server, host?: string, port?: number, opts?: ClientOpts) {
+  constructor (server: Server, host?: string, port?: number, opts?: ClientOpts) {
     this.server = server
     this.client = redis.createClient(port, host, opts)
     this.getter = promisify(this.client.get).bind(this.client)
@@ -32,28 +32,25 @@ export class Redis implements IRedis {
     })
   }
 
-  public async get(key: string) {
-    const data:string = await this.getter(key)
-    return data
+  public async get (key: string) {
+    return await this.getter(key)
   }
 
-  public async getMultiple(keys: string[]) {
-    const data: string[] = await this.multiple(keys)
-    return data
+  public async getMultiple (keys: string[]) {
+    return await this.multiple(keys)
   }
 
-  public deleteKey(key: string) {
+  public deleteKey (key: string) {
     this.client.del(key)
   }
 
-  public async keys(key: string) {
-    const data:string[] = await this.getKeys(key)
-    return data
+  public async keys (key: string) {
+    return await this.getKeys(key)
   }
 
-  public set(key: string, data: string, expiry: number = 0) {
+  public set (key: string, data: string, expiry: number = 0) {
     this.client.set(key, data)
-    if(expiry > 0) {
+    if (expiry > 0) {
       this.client.expire(key, expiry)
     }
   }

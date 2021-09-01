@@ -1,6 +1,6 @@
 export interface ServerConfig {
-  clientId: string
-  clientSecret: string
+  clientId?: string
+  clientSecret?: string
   discordApiURL: string
   discordOAuthURL: string
   oauthGrantType: string
@@ -12,14 +12,12 @@ export interface ServerConfig {
 }
 
 export const config:ServerConfig = {
-  clientId: '722393293182337124',
-  clientSecret: '2a4QuolUqPqF1lFMaBk4p0fzhJgC5FSB',
-  discordApiURL: 'https://discord.com/api/v6/',
+  discordApiURL: 'https://discord.com/api/v9/',
   discordOAuthURL: 'https://discord.com/api/oauth2/token',
   oauthGrantType: 'authorization_code',
   redirectUri: 'http://localhost:8080/api/auth/callback',
   redisHost: 'localhost',
   redisPort: 6379,
   responseType: 'code',
-  scopes: ['identify', 'guilds', 'email']
+  scopes: ['identify', 'guilds', 'email'],
 }
